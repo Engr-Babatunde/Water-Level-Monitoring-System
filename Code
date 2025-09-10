@@ -1,0 +1,71 @@
+// Water Level Monitoring System using Ultrasonic Sensor + 4 LEDs
+// Author: Isiaka Sule (Your GitHub Project)
+// Description: Measures water level at 25%, 50%, 75%, 100% using HC-SR04
+
+// Pin setup
+const int trigPin = 9;
+const int echoPin = 10;
+
+const int led25 = 2;
+const int led50 = 3;
+const int led75 = 4;
+const int led100 = 5;
+const int buzzer = 6;   // optional
+
+// Tank dimensions (adjust to your setup)
+const int tankHeight = 40; // cm (distance from sensor to tank bottom)
+
+long duration;
+int distance;
+int waterLevel;
+
+void setup() {
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+
+  pinMode(led25, OUTPUT);
+  pinMode(led50, OUTPUT);
+  pinMode(led75, OUTPUT);
+  pinMode(led100, OUTPUT);
+  pinMode(buzzer, OUTPUT);
+
+  Serial.begin(9600);
+}
+
+void loop() {
+  // Measure distance
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+
+  duration = pulseIn(echoPin, HIGH);
+  distance = duration * 0.034 / 2; 
+
+  // Calculate water level
+  waterLevel = tankHeight - distance;
+  int percent = (waterLevel * 100) / tankHeight;
+
+  Serial.print("Water Level: ");
+  Serial.print(percent);
+  Serial.println("%");
+
+  // Reset LEDs
+  digitalWrite(led25, LOW);
+  digitalWrite(led50, LOW);
+  digitalWrite(led75, LOW);
+  digitalWrite(led100, LOW);
+  digitalWrite(buzzer, LOW);
+
+  // Check thresholds
+  if (percent >= 25) digitalWrite(led25, HIGH);
+  if (percent >= 50) digitalWrite(led50, HIGH);
+  if (percent >= 75) digitalWrite(led75, HIGH);
+  if (percent >= 100) {
+    digitalWrite(led100, HIGH);
+    digitalWrite(buzzer, HIGH); 
+  }
+
+  delay(1000); // 1 second delay
+}
